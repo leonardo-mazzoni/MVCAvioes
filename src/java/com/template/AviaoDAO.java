@@ -1,31 +1,34 @@
 package com.template;
-//packages e model que estava no java
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.connection.Conexao;
-import model.dto.AviaoDTO;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class AviaoDAO {
+
+    private static final Logger logger = Logger.getLogger(AviaoDAO.class.getName());
 
     public void cadastrarAviao(AviaoDTO aviao) {
         String sql = "INSERT INTO avioes (modelo, fabricante, capacidade_passageiros, autonomia_km, ano_fabricacao) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conexao = Conexao.criarConexao();
              PreparedStatement ps = conexao.prepareStatement(sql)) {
-            // preparamos statements para deixar mais coerente
-            // usado para enviar as informações para o banco de dados
-            // eu preencho e mando para o banco
+
             ps.setString(1, aviao.getModelo());
             ps.setString(2, aviao.getFabricante());
             ps.setInt(3, aviao.getCapacidadePassageiros());
             ps.setInt(4, aviao.getAutonomiaKm());
             ps.setInt(5, aviao.getAnoFabricacao());
+
             ps.execute();
+            logger.info("Avião cadastrado com sucesso: " + aviao.getModelo());
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao cadastrar avião: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro crítico ao cadastrar avião no banco de dados. Modelo: " + aviao.getModelo(), e);
+            throw new RuntimeException("Falha na persistência: " + e.getMessage());
         }
     }
 
@@ -36,8 +39,7 @@ public class AviaoDAO {
         try (Connection conexao = Conexao.criarConexao();
              PreparedStatement ps = conexao.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            //aqui o branco preenche e me manda
-            //vai preenchendo a lista de acordo com o que tem no banco
+
             while (rs.next()) {
                 AviaoDTO aviao = new AviaoDTO();
                 aviao.setId(rs.getInt("id"));
@@ -46,10 +48,13 @@ public class AviaoDAO {
                 aviao.setCapacidadePassageiros(rs.getInt("capacidade_passageiros"));
                 aviao.setAutonomiaKm(rs.getInt("autonomia_km"));
                 aviao.setAnoFabricacao(rs.getInt("ano_fabricacao"));
-                lista.add(aviao); //volta para onde chamou, ou seja, listar
+                lista.add(aviao);
             }
+            logger.info("Consulta realizada: " + lista.size() + " aviões encontrados.");
+
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar aviões: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao recuperar lista de aviões do banco.", e);
+            throw new RuntimeException("Erro ao listar aviões.");
         }
         return lista;
     }
@@ -59,18 +64,20 @@ public class AviaoDAO {
 
         try (Connection conexao = Conexao.criarConexao();
              PreparedStatement ps = conexao.prepareStatement(sql)) {
-            // aqui a gente set os parametros
-            //atualiza
+
             ps.setString(1, aviao.getModelo());
             ps.setString(2, aviao.getFabricante());
             ps.setInt(3, aviao.getCapacidadePassageiros());
             ps.setInt(4, aviao.getAutonomiaKm());
             ps.setInt(5, aviao.getAnoFabricacao());
             ps.setInt(6, aviao.getId());
+
             ps.executeUpdate();
+            logger.info("Dados do avião ID " + aviao.getId() + " atualizados com sucesso.");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar avião: " + e.getMessage());
+            logger.log(Level.SEVERE, "Falha ao atualizar o avião ID: " + aviao.getId(), e);
+            throw new RuntimeException("Erro ao atualizar registro.");
         }
     }
 
@@ -82,9 +89,11 @@ public class AviaoDAO {
 
             ps.setInt(1, id);
             ps.execute();
+            logger.warning("Avião ID " + id + " removido do sistema.");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao excluir avião: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao tentar excluir o avião ID: " + id, e);
+            throw new RuntimeException("Não foi possível excluir o registro.");
         }
     }
 }

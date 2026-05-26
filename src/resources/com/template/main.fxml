@@ -17,9 +17,9 @@
 <AnchorPane prefHeight="746.0" prefWidth="750.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.template.MainController">
 
     <children>
-        <Button fx:id="btnExcluir" layoutX="416.0" layoutY="262.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="89.0" text="Excluir" />
-      <Button fx:id="btnSalvar" layoutX="416.0" layoutY="189.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="89.0" text="Salvar" />
-      <Button fx:id="btnAlterar" layoutX="416.0" layoutY="226.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="89.0" text="Alterar" />
+        <Button fx:id="btnExcluir" layoutX="416.0" layoutY="262.0" mnemonicParsing="false" onAction="#btnExcluirAction" prefHeight="25.0" prefWidth="89.0" text="Excluir" />
+      <Button fx:id="btnSalvar" layoutX="416.0" layoutY="189.0" mnemonicParsing="false" onAction="#btnSalvarAction" prefHeight="25.0" prefWidth="89.0" text="Salvar" />
+      <Button fx:id="btnAlterar" layoutX="416.0" layoutY="226.0" mnemonicParsing="false" onAction="#btnAlterarAction" prefHeight="25.0" prefWidth="89.0" text="Alterar" />
       <Label layoutX="66.0" layoutY="157.0" text="Modelo" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
