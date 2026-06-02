@@ -13,9 +13,9 @@ public class Main extends Application
     {
 
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("main.fxml"));
-        Scene scene = new Scene(loader.load(), 600, 400);
+        Scene scene = new Scene(loader.load(), 800, 800);
 
-        stage.setTitle("Hello");
+        stage.setTitle("Cadastro de Aviões");
         stage.setScene(scene);
         stage.show();
     }

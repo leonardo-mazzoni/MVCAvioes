@@ -32,9 +32,9 @@ public class AviaoDAO {
         }
     }
 
-    public List<AviaoDTO> listarTodos() {
+    public ArrayList<AviaoDTO> listarTodos() {
         String sql = "SELECT * FROM avioes ORDER BY id";
-        List<AviaoDTO> lista = new ArrayList<>();
+        ArrayList<AviaoDTO> lista = new ArrayList<>();
 
         try (Connection conexao = Conexao.criarConexao();
              PreparedStatement ps = conexao.prepareStatement(sql);

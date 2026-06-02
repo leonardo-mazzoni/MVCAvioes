@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -12,14 +13,12 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="746.0" prefWidth="750.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.template.MainController">
+<AnchorPane prefHeight="746.0" prefWidth="737.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.template.MainController">
 
     <children>
-        <Button fx:id="btnExcluir" layoutX="416.0" layoutY="262.0" mnemonicParsing="false" onAction="#btnExcluirAction" prefHeight="25.0" prefWidth="89.0" text="Excluir" />
-      <Button fx:id="btnSalvar" layoutX="416.0" layoutY="189.0" mnemonicParsing="false" onAction="#btnSalvarAction" prefHeight="25.0" prefWidth="89.0" text="Salvar" />
-      <Button fx:id="btnAlterar" layoutX="416.0" layoutY="226.0" mnemonicParsing="false" onAction="#btnAlterarAction" prefHeight="25.0" prefWidth="89.0" text="Alterar" />
       <Label layoutX="66.0" layoutY="157.0" text="Modelo" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
@@ -50,14 +49,14 @@
       <TextField fx:id="txtCapacidade" layoutX="170.0" layoutY="253.0" />
       <TextField fx:id="txtAutonomia" layoutX="170.0" layoutY="301.0" />
       <TextField fx:id="txtAno" layoutX="170.0" layoutY="349.0" />
-      <TableView fx:id="tblAvioes" layoutX="66.0" layoutY="421.0" prefHeight="273.0" prefWidth="642.0">
+      <TableView fx:id="tblAvioes" layoutX="66.0" layoutY="421.0" onMouseClicked="#carregarCampos" prefHeight="273.0" prefWidth="642.0" style="-fx-background-color: D3D3D3;">
         <columns>
-          <TableColumn fx:id="colId" prefWidth="75.0" text="id" />
-          <TableColumn fx:id="colModelo" prefWidth="85.0" text="modelo" />
-            <TableColumn fx:id="colFabricante" prefWidth="89.0" text="fabricante" />
-            <TableColumn fx:id="colCapacidade" prefWidth="166.0" text="capacidade de passageiros" />
-            <TableColumn fx:id="colAutonomia" prefWidth="95.0" text="autonomia" />
-            <TableColumn fx:id="colAno" prefWidth="132.0" text="ano de fabricação" />
+          <TableColumn fx:id="colId" prefWidth="75.0" style="-fx-background-color: gray;" text="id" />
+          <TableColumn fx:id="colModelo" prefWidth="85.0" style="-fx-background-color: gray;" text="modelo" />
+            <TableColumn fx:id="colFabricante" prefWidth="89.0" style="-fx-background-color: gray;" text="fabricante" />
+            <TableColumn fx:id="colCapacidade" prefWidth="166.0" style="-fx-background-color: gray;" text="capacidade de passageiros" />
+            <TableColumn fx:id="colAutonomia" prefWidth="95.0" style="-fx-background-color: gray;" text="autonomia" />
+            <TableColumn fx:id="colAno" prefWidth="132.0" style="-fx-background-color: gray;" text="ano de fabricação" />
         </columns>
       </TableView>
       <Label layoutX="81.0" layoutY="113.0" text="ID" textFill="WHITE">
@@ -65,7 +64,7 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <TextField fx:id="txtId" layoutX="170.0" layoutY="109.0" />
+      <TextField fx:id="txtId" disable="true" editable="false" layoutX="170.0" layoutY="109.0" />
       <Label layoutX="289.0" layoutY="27.0" prefHeight="49.0" prefWidth="242.0" text="MVC AVIÃO " textAlignment="CENTER" textFill="WHITE">
          <font>
             <Font name="MS Gothic" size="45.0" />
@@ -84,6 +83,47 @@
       <ImageView fitHeight="106.0" fitWidth="232.0" layoutX="-4.0">
          <image>
             <Image url="@../../../../../../Downloads/airplane.png" />
+         </image>
+      </ImageView>
+      <VBox layoutX="387.0" layoutY="134.0" prefHeight="200.0" prefWidth="100.0" style="-fx-alignment: center; -fx-spacing: 10;">
+         <children>
+            <Button fx:id="btnLimpar" mnemonicParsing="false" onAction="#btnLimparAction" prefHeight="25.0" prefWidth="89.0" style="-fx-background-color: gray;" text="Limpar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="btnSalvar" mnemonicParsing="false" onAction="#btnSalvarAction" prefHeight="25.0" prefWidth="89.0" style="-fx-background-color: green;" text="Salvar" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="btnAlterar" mnemonicParsing="false" onAction="#btnAlterarAction" prefHeight="25.0" prefWidth="89.0" style="-fx-background-color: orange;" text="Alterar" textFill="#fffbfb">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Button>
+              <Button fx:id="btnExcluir" mnemonicParsing="false" onAction="#btnExcluirAction" prefHeight="25.0" prefWidth="89.0" style="-fx-background-color: red;" text="Excluir" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+      <ImageView fitHeight="180.0" fitWidth="265.0" layoutX="437.0">
+         <image>
+            <Image url="@../../../../../../Downloads/580b585b2edbce24c47b2639.png" />
          </image>
       </ImageView>
     </children>
