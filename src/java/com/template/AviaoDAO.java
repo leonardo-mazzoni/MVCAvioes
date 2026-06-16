@@ -2,16 +2,10 @@ package com.template;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public class AviaoDAO {
 
-    private static final Logger logger = Logger.getLogger(AviaoDAO.class.getName());
-
-    public void cadastrarAviao(AviaoDTO aviao) {
+    public void cadastrarAviao(AviaoDTO aviao) throws SQLException {
         String sql = "INSERT INTO avioes (modelo, fabricante, capacidade_passageiros, autonomia_km, ano_fabricacao) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conexao = Conexao.criarConexao();
@@ -24,15 +18,10 @@ public class AviaoDAO {
             ps.setInt(5, aviao.getAnoFabricacao());
 
             ps.execute();
-            logger.info("Avião cadastrado com sucesso: " + aviao.getModelo());
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro crítico ao cadastrar avião no banco de dados. Modelo: " + aviao.getModelo(), e);
-            throw new RuntimeException("Falha na persistência: " + e.getMessage());
         }
     }
 
-    public ArrayList<AviaoDTO> listarTodos() {
+    public ArrayList<AviaoDTO> listarTodos() throws SQLException {
         String sql = "SELECT * FROM avioes ORDER BY id";
         ArrayList<AviaoDTO> lista = new ArrayList<>();
 
@@ -50,16 +39,11 @@ public class AviaoDAO {
                 aviao.setAnoFabricacao(rs.getInt("ano_fabricacao"));
                 lista.add(aviao);
             }
-            logger.info("Consulta realizada: " + lista.size() + " aviões encontrados.");
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao recuperar lista de aviões do banco.", e);
-            throw new RuntimeException("Erro ao listar aviões.");
         }
         return lista;
     }
 
-    public void atualizarAviao(AviaoDTO aviao) {
+    public void atualizarAviao(AviaoDTO aviao) throws SQLException {
         String sql = "UPDATE avioes SET modelo = ?, fabricante = ?, capacidade_passageiros = ?, autonomia_km = ?, ano_fabricacao = ? WHERE id = ?";
 
         try (Connection conexao = Conexao.criarConexao();
@@ -73,15 +57,10 @@ public class AviaoDAO {
             ps.setInt(6, aviao.getId());
 
             ps.executeUpdate();
-            logger.info("Dados do avião ID " + aviao.getId() + " atualizados com sucesso.");
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Falha ao atualizar o avião ID: " + aviao.getId(), e);
-            throw new RuntimeException("Erro ao atualizar registro.");
         }
     }
 
-    public void excluirAviao(int id) {
+    public void excluirAviao(int id) throws SQLException {
         String sql = "DELETE FROM avioes WHERE id = ?";
 
         try (Connection conexao = Conexao.criarConexao();
@@ -89,11 +68,6 @@ public class AviaoDAO {
 
             ps.setInt(1, id);
             ps.execute();
-            logger.warning("Avião ID " + id + " removido do sistema.");
-
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Erro ao tentar excluir o avião ID: " + id, e);
-            throw new RuntimeException("Não foi possível excluir o registro.");
         }
     }
 }

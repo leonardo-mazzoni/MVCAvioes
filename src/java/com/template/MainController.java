@@ -3,26 +3,19 @@ package com.template;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent; // Importação essencial para a tabela funcionar
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MainController {
-
-    private static final Logger logger = Logger.getLogger(MainController.class.getName());
 
     @FXML private Button btnSalvar;
     @FXML private Button btnAlterar;
     @FXML private Button btnExcluir;
     @FXML private Button btnLimpar;
-    // ---- ----- ---- ---- --- --- //
 
     @FXML private TextField txtId;
     @FXML private TextField txtModelo;
@@ -31,7 +24,7 @@ public class MainController {
     @FXML private TextField txtAutonomia;
     @FXML private TextField txtAno;
 
-    // ---- ----- ---- ---- --- --- //
+    @FXML private Label lblMensagem;
 
     @FXML private TableView<AviaoDTO> tblAvioes;
     @FXML private TableColumn<AviaoDTO, Integer> colId;
@@ -40,10 +33,10 @@ public class MainController {
     @FXML private TableColumn<AviaoDTO, Integer> colCapacidade;
     @FXML private TableColumn<AviaoDTO, Integer> colAutonomia;
     @FXML private TableColumn<AviaoDTO, Integer> colAno;
-    // ---- ----- ---- ---- --- --- //
 
     @FXML
-    private void initialize() { // Aqui inicia todos os componentes e correlaciona com o código (DTO)
+    private void initialize() {
+        // Vincula as colunas aos atributos do DTO
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
         colFabricante.setCellValueFactory(new PropertyValueFactory<>("fabricante"));
@@ -51,18 +44,53 @@ public class MainController {
         colAutonomia.setCellValueFactory(new PropertyValueFactory<>("autonomiaKm"));
         colAno.setCellValueFactory(new PropertyValueFactory<>("anoFabricacao"));
 
+        aplicarFiltrosNumericos();
+        estadoInicialBotoes();
         carregarAvioes();
     }
 
-    @FXML
-    private void carregarAvioes() { // Essa função consulta o BD, cria uma lista com os avioes do BD e carrega eles na tabela
-        AviaoDAO aviaoDao = new AviaoDAO();
-        ArrayList<AviaoDTO> listaAvioes = aviaoDao.listarTodos();
-        tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
+    // Impede que o usuário digite letras em campos numéricos
+    private void aplicarFiltrosNumericos() {
+        txtCapacidade.setTextFormatter(new TextFormatter<>(change -> change.getText().matches("[0-9]*") ? change : null));
+        txtAutonomia.setTextFormatter(new TextFormatter<>(change -> change.getText().matches("[0-9]*") ? change : null));
+        txtAno.setTextFormatter(new TextFormatter<>(change -> change.getText().matches("[0-9]*") ? change : null));
+    }
+
+    // Habilitar ou desabilitar campos de acordo com a ação
+    private void estadoInicialBotoes() {
+        btnSalvar.setDisable(false);
+        btnAlterar.setDisable(true);
+        btnExcluir.setDisable(true);
+    }
+
+    private void exibirMensagem(String mensagem, boolean sucesso) {
+        lblMensagem.setText(mensagem);
+        lblMensagem.setTextFill(sucesso ? Color.GREEN : Color.RED);
+    }
+
+    private boolean validarCampos() {
+        if (txtModelo.getText().trim().isEmpty() || txtFabricante.getText().trim().isEmpty() ||
+                txtCapacidade.getText().trim().isEmpty() || txtAutonomia.getText().trim().isEmpty() ||
+                txtAno.getText().trim().isEmpty()) {
+            exibirMensagem("Erro: Preencha todos os campos obrigatórios (*).", false);
+            return false;
+        }
+        return true;
     }
 
     @FXML
-    private void carregarCampos(MouseEvent event) { // Função para carregar o aviao selecionado na tabela para os textfields
+    private void carregarAvioes() {
+        try {
+            AviaoDAO aviaoDao = new AviaoDAO();
+            ArrayList<AviaoDTO> listaAvioes = aviaoDao.listarTodos();
+            tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
+        } catch (Exception e) {
+            exibirMensagem("Erro ao carregar dados do banco.", false);
+        }
+    }
+
+    @FXML
+    private void carregarCampos(MouseEvent event) {
         AviaoDTO aviaoDto = tblAvioes.getSelectionModel().getSelectedItem();
 
         if (aviaoDto != null) {
@@ -72,28 +100,35 @@ public class MainController {
             txtCapacidade.setText(String.valueOf(aviaoDto.getCapacidadePassageiros()));
             txtAutonomia.setText(String.valueOf(aviaoDto.getAutonomiaKm()));
             txtAno.setText(String.valueOf(aviaoDto.getAnoFabricacao()));
+
+            // Ao selecionar registro, bloqueia Salvar e libera Alterar/Excluir
+            btnSalvar.setDisable(true);
+            btnAlterar.setDisable(false);
+            btnExcluir.setDisable(false);
+            lblMensagem.setText(""); // Limpa mensagens anteriores
         }
     }
 
     @FXML
-    private void btnLimparAction(ActionEvent event) { // Função para limpar os textfields
+    private void btnLimparAction(ActionEvent event) {
         txtId.clear();
         txtModelo.clear();
         txtFabricante.clear();
         txtCapacidade.clear();
         txtAutonomia.clear();
         txtAno.clear();
+
+        lblMensagem.setText("");
+        estadoInicialBotoes();
+        tblAvioes.getSelectionModel().clearSelection();
+        txtModelo.requestFocus(); // Retorna o cursor pro primeiro campo
     }
 
     @FXML
-    private void btnSalvarAction(ActionEvent event) { // Aqui realiza toda a ação após salvar
-        try {
-            // Verificação de segurança: impede que o código quebre se os campos numéricos estiverem vazios
-            if (txtCapacidade.getText().isEmpty() || txtAutonomia.getText().isEmpty() || txtAno.getText().isEmpty()) {
-                logger.warning("Por favor, preencha Capacidade, Autonomia e Ano antes de salvar.");
-                return; // Interrompe a execução aqui, sem tentar salvar
-            }
+    private void btnSalvarAction(ActionEvent event) {
+        if (!validarCampos()) return;
 
+        try {
             AviaoDTO aviaoDto = new AviaoDTO();
             aviaoDto.setModelo(txtModelo.getText());
             aviaoDto.setFabricante(txtFabricante.getText());
@@ -104,29 +139,21 @@ public class MainController {
             AviaoDAO aviaoDao = new AviaoDAO();
             aviaoDao.cadastrarAviao(aviaoDto);
 
-            // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
             btnLimparAction(null);
-
-        } catch (NumberFormatException e) {
-            logger.log(Level.WARNING, "Erro: Letras inseridas onde deveriam ser números.", e);
+            exibirMensagem("Avião cadastrado com sucesso!", true);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao salvar avião.", e);
+            exibirMensagem("Erro ao salvar no banco de dados.", false);
         }
     }
 
     @FXML
     private void btnAlterarAction(ActionEvent event) {
+        if (txtId.getText().isEmpty()) return;
+        if (!validarCampos()) return;
+
         try {
-            // Se o campo ID está vazio, significa que nenhum avião foi selecionado na tabela
-            if (txtId.getText().isEmpty()) {
-                logger.warning("Selecione um avião na tabela primeiro para poder alterá-lo.");
-                return;
-            }
-
             AviaoDTO aviaoDto = new AviaoDTO();
-
-            // Agora é seguro pegar o ID, pois sabemos que ele tem um valor
             aviaoDto.setId(Integer.parseInt(txtId.getText()));
             aviaoDto.setModelo(txtModelo.getText());
             aviaoDto.setFabricante(txtFabricante.getText());
@@ -137,38 +164,28 @@ public class MainController {
             AviaoDAO aviaoDao = new AviaoDAO();
             aviaoDao.atualizarAviao(aviaoDto);
 
-            // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
             btnLimparAction(null);
-
-        } catch (NumberFormatException e) {
-            logger.log(Level.WARNING, "Erro de conversão: Campos numéricos inválidos no formulário.", e);
+            exibirMensagem("Dados atualizados com sucesso!", true);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Falha crítica ao tentar alterar avião.", e);
+            exibirMensagem("Erro ao atualizar aeronave.", false);
         }
     }
 
     @FXML
     private void btnExcluirAction(ActionEvent event) {
+        if (txtId.getText().isEmpty()) return;
+
         try {
-            if (txtId.getText().isEmpty()) { // Se não foi clicado em um avião e clicou no botão excluir
-                logger.warning("Selecione um avião na tabela primeiro para poder excluí-lo.");
-                return;
-            }
-
             int id = Integer.parseInt(txtId.getText());
-
             AviaoDAO aviaoDao = new AviaoDAO();
             aviaoDao.excluirAviao(id);
 
-            // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
             btnLimparAction(null);
-
-        } catch (NumberFormatException e) {
-            logger.log(Level.WARNING, "Tentativa de exclusão com ID inválido.");
+            exibirMensagem("Aeronave excluída com sucesso!", true);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erro ao processar exclusão de avião.", e);
+            exibirMensagem("Erro ao excluir aeronave.", false);
         }
     }
 }
