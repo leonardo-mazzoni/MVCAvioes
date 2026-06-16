@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="746.0" prefWidth="737.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.template.MainController">
+<AnchorPane prefHeight="756.0" prefWidth="756.0" style="-fx-background-color: skyblue;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.template.MainController">
 
     <children>
       <Label layoutX="66.0" layoutY="157.0" text="Modelo" textFill="WHITE">
@@ -49,14 +49,24 @@
       <TextField fx:id="txtCapacidade" layoutX="170.0" layoutY="253.0" />
       <TextField fx:id="txtAutonomia" layoutX="170.0" layoutY="301.0" />
       <TextField fx:id="txtAno" layoutX="170.0" layoutY="349.0" />
+      <ImageView fitHeight="200.0" fitWidth="200.0" layoutX="10.0" layoutY="-34.0">
+         <image>
+            <Image url="@imagens/aviao.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="138.0" fitWidth="284.0" layoutX="431.0" layoutY="19.0">
+         <image>
+            <Image url="@imagens/nuvem.png" />
+         </image>
+      </ImageView>
       <TableView fx:id="tblAvioes" layoutX="66.0" layoutY="421.0" onMouseClicked="#carregarCampos" prefHeight="273.0" prefWidth="642.0" style="-fx-background-color: D3D3D3;">
         <columns>
-          <TableColumn fx:id="colId" prefWidth="75.0" style="-fx-background-color: gray;" text="id" />
-          <TableColumn fx:id="colModelo" prefWidth="85.0" style="-fx-background-color: gray;" text="modelo" />
-            <TableColumn fx:id="colFabricante" prefWidth="89.0" style="-fx-background-color: gray;" text="fabricante" />
-            <TableColumn fx:id="colCapacidade" prefWidth="166.0" style="-fx-background-color: gray;" text="capacidade de passageiros" />
-            <TableColumn fx:id="colAutonomia" prefWidth="95.0" style="-fx-background-color: gray;" text="autonomia" />
-            <TableColumn fx:id="colAno" prefWidth="132.0" style="-fx-background-color: gray;" text="ano de fabricação" />
+          <TableColumn fx:id="colId" prefWidth="75.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="id" />
+          <TableColumn fx:id="colModelo" prefWidth="85.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="modelo" />
+            <TableColumn fx:id="colFabricante" prefWidth="89.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="fabricante" />
+            <TableColumn fx:id="colCapacidade" prefWidth="166.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="capacidade de passageiros" />
+            <TableColumn fx:id="colAutonomia" prefWidth="95.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="autonomia" />
+            <TableColumn fx:id="colAno" prefWidth="132.0" style="-fx-background-color: light gray; -fx-font-weight: bold;" text="ano de fabricação" />
         </columns>
       </TableView>
       <Label layoutX="81.0" layoutY="113.0" text="ID" textFill="WHITE">
@@ -80,11 +90,6 @@
             </Lighting>
          </effect>
       </Label>
-      <ImageView fitHeight="106.0" fitWidth="232.0" layoutX="-4.0">
-         <image>
-            <Image url="@../../../../../../Downloads/airplane.png" />
-         </image>
-      </ImageView>
       <VBox layoutX="387.0" layoutY="134.0" prefHeight="200.0" prefWidth="100.0" style="-fx-alignment: center; -fx-spacing: 10;">
          <children>
             <Button fx:id="btnLimpar" mnemonicParsing="false" onAction="#btnLimparAction" prefHeight="25.0" prefWidth="89.0" style="-fx-background-color: gray;" text="Limpar" textFill="WHITE">
@@ -121,11 +126,6 @@
             </Button>
          </children>
       </VBox>
-      <ImageView fitHeight="180.0" fitWidth="265.0" layoutX="437.0">
-         <image>
-            <Image url="@../../../../../../Downloads/580b585b2edbce24c47b2639.png" />
-         </image>
-      </ImageView>
     </children>
    <effect>
       <ColorAdjust />

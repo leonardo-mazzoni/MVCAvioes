@@ -43,7 +43,40 @@ public class MainController {
     // ---- ----- ---- ---- --- --- //
 
     @FXML
-    private void btnLimparAction(ActionEvent event) {
+    private void initialize() { // Aqui inicia todos os componentes e correlaciona com o código (DTO)
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        colFabricante.setCellValueFactory(new PropertyValueFactory<>("fabricante"));
+        colCapacidade.setCellValueFactory(new PropertyValueFactory<>("capacidadePassageiros"));
+        colAutonomia.setCellValueFactory(new PropertyValueFactory<>("autonomiaKm"));
+        colAno.setCellValueFactory(new PropertyValueFactory<>("anoFabricacao"));
+
+        carregarAvioes();
+    }
+
+    @FXML
+    private void carregarAvioes() { // Essa função consulta o BD, cria uma lista com os avioes do BD e carrega eles na tabela
+        AviaoDAO aviaoDao = new AviaoDAO();
+        ArrayList<AviaoDTO> listaAvioes = aviaoDao.listarTodos();
+        tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
+    }
+
+    @FXML
+    private void carregarCampos(MouseEvent event) { // Função para carregar o aviao selecionado na tabela para os textfields
+        AviaoDTO aviaoDto = tblAvioes.getSelectionModel().getSelectedItem();
+
+        if (aviaoDto != null) {
+            txtId.setText(String.valueOf(aviaoDto.getId()));
+            txtModelo.setText(aviaoDto.getModelo());
+            txtFabricante.setText(aviaoDto.getFabricante());
+            txtCapacidade.setText(String.valueOf(aviaoDto.getCapacidadePassageiros()));
+            txtAutonomia.setText(String.valueOf(aviaoDto.getAutonomiaKm()));
+            txtAno.setText(String.valueOf(aviaoDto.getAnoFabricacao()));
+        }
+    }
+
+    @FXML
+    private void btnLimparAction(ActionEvent event) { // Função para limpar os textfields
         txtId.clear();
         txtModelo.clear();
         txtFabricante.clear();
@@ -53,7 +86,7 @@ public class MainController {
     }
 
     @FXML
-    private void btnSalvarAction(ActionEvent event) {
+    private void btnSalvarAction(ActionEvent event) { // Aqui realiza toda a ação após salvar
         try {
             // Verificação de segurança: impede que o código quebre se os campos numéricos estiverem vazios
             if (txtCapacidade.getText().isEmpty() || txtAutonomia.getText().isEmpty() || txtAno.getText().isEmpty()) {
@@ -61,18 +94,15 @@ public class MainController {
                 return; // Interrompe a execução aqui, sem tentar salvar
             }
 
-            AviaoDTO aviaodto = new AviaoDTO();
+            AviaoDTO aviaoDto = new AviaoDTO();
+            aviaoDto.setModelo(txtModelo.getText());
+            aviaoDto.setFabricante(txtFabricante.getText());
+            aviaoDto.setCapacidadePassageiros(Integer.parseInt(txtCapacidade.getText()));
+            aviaoDto.setAutonomiaKm(Integer.parseInt(txtAutonomia.getText()));
+            aviaoDto.setAnoFabricacao(Integer.parseInt(txtAno.getText()));
 
-            // NÃO lemos o txtId.getText() aqui. O DTO assumirá o valor padrão (0),
-            // que será ignorado pelo DAO durante o INSERT.
-            aviaodto.setModelo(txtModelo.getText());
-            aviaodto.setFabricante(txtFabricante.getText());
-            aviaodto.setCapacidadePassageiros(Integer.parseInt(txtCapacidade.getText()));
-            aviaodto.setAutonomiaKm(Integer.parseInt(txtAutonomia.getText()));
-            aviaodto.setAnoFabricacao(Integer.parseInt(txtAno.getText()));
-
-            AviaoDAO dao = new AviaoDAO();
-            dao.cadastrarAviao(aviaodto);
+            AviaoDAO aviaoDao = new AviaoDAO();
+            aviaoDao.cadastrarAviao(aviaoDto);
 
             // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
@@ -94,18 +124,18 @@ public class MainController {
                 return;
             }
 
-            AviaoDTO aviaodto = new AviaoDTO();
+            AviaoDTO aviaoDto = new AviaoDTO();
 
             // Agora é seguro pegar o ID, pois sabemos que ele tem um valor
-            aviaodto.setId(Integer.parseInt(txtId.getText()));
-            aviaodto.setModelo(txtModelo.getText());
-            aviaodto.setFabricante(txtFabricante.getText());
-            aviaodto.setCapacidadePassageiros(Integer.parseInt(txtCapacidade.getText()));
-            aviaodto.setAutonomiaKm(Integer.parseInt(txtAutonomia.getText()));
-            aviaodto.setAnoFabricacao(Integer.parseInt(txtAno.getText()));
+            aviaoDto.setId(Integer.parseInt(txtId.getText()));
+            aviaoDto.setModelo(txtModelo.getText());
+            aviaoDto.setFabricante(txtFabricante.getText());
+            aviaoDto.setCapacidadePassageiros(Integer.parseInt(txtCapacidade.getText()));
+            aviaoDto.setAutonomiaKm(Integer.parseInt(txtAutonomia.getText()));
+            aviaoDto.setAnoFabricacao(Integer.parseInt(txtAno.getText()));
 
-            AviaoDAO dao = new AviaoDAO();
-            dao.atualizarAviao(aviaodto);
+            AviaoDAO aviaoDao = new AviaoDAO();
+            aviaoDao.atualizarAviao(aviaoDto);
 
             // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
@@ -121,16 +151,15 @@ public class MainController {
     @FXML
     private void btnExcluirAction(ActionEvent event) {
         try {
-            // Evita a quebra do programa se o botão for clicado sem um avião selecionado
-            if (txtId.getText().isEmpty()) {
+            if (txtId.getText().isEmpty()) { // Se não foi clicado em um avião e clicou no botão excluir
                 logger.warning("Selecione um avião na tabela primeiro para poder excluí-lo.");
                 return;
             }
 
             int id = Integer.parseInt(txtId.getText());
 
-            AviaoDAO dao = new AviaoDAO();
-            dao.excluirAviao(id);
+            AviaoDAO aviaoDao = new AviaoDAO();
+            aviaoDao.excluirAviao(id);
 
             // Atualiza a tabela na tela e limpa os campos
             carregarAvioes();
@@ -140,39 +169,6 @@ public class MainController {
             logger.log(Level.WARNING, "Tentativa de exclusão com ID inválido.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erro ao processar exclusão de avião.", e);
-        }
-    }
-
-    @FXML
-    private void carregarAvioes() {
-        AviaoDAO objetoAviaoDao = new AviaoDAO();
-        ArrayList<AviaoDTO> listaAvioes = objetoAviaoDao.listarTodos();
-        tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
-    }
-
-    @FXML
-    private void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
-        colFabricante.setCellValueFactory(new PropertyValueFactory<>("fabricante"));
-        colCapacidade.setCellValueFactory(new PropertyValueFactory<>("capacidadePassageiros"));
-        colAutonomia.setCellValueFactory(new PropertyValueFactory<>("autonomiaKm"));
-        colAno.setCellValueFactory(new PropertyValueFactory<>("anoFabricacao"));
-
-        carregarAvioes();
-    }
-
-    @FXML
-    private void carregarCampos(MouseEvent event) {
-        AviaoDTO aviaoDTO = tblAvioes.getSelectionModel().getSelectedItem();
-
-        if(aviaoDTO != null){
-            txtId.setText(String.valueOf(aviaoDTO.getId()));
-            txtModelo.setText(aviaoDTO.getModelo());
-            txtFabricante.setText(aviaoDTO.getFabricante());
-            txtCapacidade.setText(String.valueOf(aviaoDTO.getCapacidadePassageiros()));
-            txtAutonomia.setText(String.valueOf(aviaoDTO.getAutonomiaKm()));
-            txtAno.setText(String.valueOf(aviaoDTO.getAnoFabricacao()));
         }
     }
 }
