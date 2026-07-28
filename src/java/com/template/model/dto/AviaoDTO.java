@@ -1,4 +1,4 @@
-package com.template;
+package com.template.model.dto;
 
 public class AviaoDTO {
     private int id;
@@ -8,7 +8,6 @@ public class AviaoDTO {
     private int autonomiaKm;
     private int anoFabricacao;
 
-    // Getters e Setters
     public int getId() {
         return id;
     }
