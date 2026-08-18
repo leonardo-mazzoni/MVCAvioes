@@ -1,12 +1,17 @@
+/* EXPLICAÇÃO DA CLASSE AviaoMapper:
+
+O Problema: Nos métodos btnSalvarAction e btnAlterarAction,
+tem várias linhas fazendo Integer.parseInt(txtCapacidade.getText().trim())
+para montar o objeto AviaoDTO. Agora tem o AviaoMapper para nao poluir o Controller.
+
+A Solução: Uma classe especializada apenas em converter os dados dos TextFields da tela para um objeto AviaoDTO. */
+
 package com.template.util;
 
 import com.template.model.dto.AviaoDTO;
 
 public class AviaoMapper {
 
-    /**
-     * Transforma as Strings recebidas da interface gráfica em um objeto AviaoDTO pronto.
-     */
     public static AviaoDTO montarDTO(String id, String modelo, String fabricante, String capacidade, String autonomia, String ano) {
         AviaoDTO dto = new AviaoDTO();
 

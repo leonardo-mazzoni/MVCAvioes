@@ -1,3 +1,10 @@
+/*
+EXPLICAÇÃO:
+Aqui foi criado uma classe para a parte visual do MainController
+Limpar Controle
+Aplicar FIltros
+etc
+ */
 package com.template.services;
 
 import com.template.model.dto.AviaoDTO;

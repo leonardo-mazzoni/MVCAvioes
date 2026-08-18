@@ -1,3 +1,9 @@
+/* EXPLICAÇÃO DA CLASSE TabelaUtil:
+O Problema: O metodo initialize() gasta 6 (atualmente) linhas apenas configurando as colunas da tabela (setCellValueFactory).
+Se a tabela crescer, o Controller cresce junto.
+A Solução: Mover a configuração visual da tabela para fora.  */
+
+
 package com.template.util;
 
 import com.template.model.dto.AviaoDTO;

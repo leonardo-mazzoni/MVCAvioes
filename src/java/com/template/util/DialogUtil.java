@@ -1,3 +1,4 @@
+
 package com.template.util;
 
 import javafx.scene.control.Alert;
