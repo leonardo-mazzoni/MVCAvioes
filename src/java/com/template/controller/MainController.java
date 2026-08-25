@@ -6,7 +6,7 @@ import com.template.services.LayoutServices;
 import com.template.util.AviaoMapper;
 import com.template.util.DialogUtil;
 import com.template.util.TabelaUtil;
-import com.template.validator.AviaoValidator;
+import com.template.validator.AviaoValidador;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -55,7 +55,7 @@ public class MainController {
     }
 
     private boolean validarEntradas() {
-        boolean isValido = AviaoValidator.validarCamposFormulario(
+        boolean isValido = AviaoValidador.validarCamposFormulario(
                 txtModelo.getText(),
                 txtFabricante.getText(),
                 txtCapacidade.getText(),
@@ -128,7 +128,7 @@ public class MainController {
 
     @FXML
     private void btnAlterarAction(ActionEvent evento) {
-        if (!AviaoValidator.isIdValido(txtId.getText())) return;
+        if (!AviaoValidador.isIdValido(txtId.getText())) return;
         if (!validarEntradas()) return;
 
         try {
@@ -152,7 +152,7 @@ public class MainController {
 
     @FXML
     private void btnExcluirAction(ActionEvent evento) {
-        if (!AviaoValidator.isIdValido(txtId.getText())) return;
+        if (!AviaoValidador.isIdValido(txtId.getText())) return;
 
         boolean confirmado = DialogUtil.showConfirmation("Atenção: Tem certeza que deseja excluir esta aeronave? Esta ação não pode ser desfeita.");
         if (!confirmado) return;
