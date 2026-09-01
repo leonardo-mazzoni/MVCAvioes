@@ -2,11 +2,13 @@ package com.template.controller;
 
 import com.template.model.dto.AviaoDTO;
 import com.template.services.AviaoService;
+import com.template.services.IAviaoService;
 import com.template.services.LayoutServices;
 import com.template.util.AviaoMapper;
 import com.template.util.DialogUtil;
 import com.template.util.TabelaUtil;
 import com.template.validator.AviaoValidador;
+import com.template.validator.IAviaoValidador;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,15 +41,21 @@ public class MainController {
     @FXML private TableColumn<AviaoDTO, Integer> colAutonomia;
     @FXML private TableColumn<AviaoDTO, Integer> colAno;
 
-    // A dependência agora é do Service, e não mais do DAO
-    private final AviaoService aviaoService = new AviaoService();
+    private final IAviaoService aviaoService;
+    private final IAviaoValidador aviaoValidador;
+
+    public MainController(IAviaoService aviaoService, IAviaoValidador aviaoValidador) {
+        this.aviaoService = aviaoService;
+        this.aviaoValidador = aviaoValidador;
+    }
+
+    public MainController() {
+        this(new AviaoService(), new AviaoValidador());
+    }
 
     @FXML
     private void initialize() {
-        // Delegação para a classe utilitária de Tabela
         TabelaUtil.configurarColunasAviao(colId, colModelo, colFabricante, colCapacidade, colAutonomia, colAno);
-
-        // Delegação para a classe LayoutServices
         LayoutServices.aplicarFiltrosEntradaNumerica(txtCapacidade, txtAutonomia, txtAno);
         LayoutServices.configurarEstadoBotoes(btnSalvar, btnAlterar, btnExcluir, false);
 
@@ -55,7 +63,7 @@ public class MainController {
     }
 
     private boolean validarEntradas() {
-        boolean isValido = AviaoValidador.validarCamposFormulario(
+        boolean isValido = aviaoValidador.validarAviao(
                 txtModelo.getText(),
                 txtFabricante.getText(),
                 txtCapacidade.getText(),
@@ -64,7 +72,7 @@ public class MainController {
         );
 
         if (!isValido) {
-            LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro: Preencha todos os campos corretamente (ano de 4 dígitos e valores > 0).", false);
+            LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro: Preencha todos os campos corretamente.", false);
         }
 
         return isValido;
@@ -108,13 +116,11 @@ public class MainController {
         if (!validarEntradas()) return;
 
         try {
-            // Delega a criação do objeto para o Mapper
             AviaoDTO aviaoDTO = AviaoMapper.montarDTO(
                     null, txtModelo.getText(), txtFabricante.getText(),
                     txtCapacidade.getText(), txtAutonomia.getText(), txtAno.getText()
             );
 
-            // Delega a ação de salvar para o Service
             aviaoService.salvar(aviaoDTO);
 
             carregarTabelaAvioes();
@@ -128,17 +134,14 @@ public class MainController {
 
     @FXML
     private void btnAlterarAction(ActionEvent evento) {
-        if (!AviaoValidador.isIdValido(txtId.getText())) return;
         if (!validarEntradas()) return;
 
         try {
-            // Delega a criação do objeto para o Mapper
             AviaoDTO aviaoDTO = AviaoMapper.montarDTO(
                     txtId.getText(), txtModelo.getText(), txtFabricante.getText(),
                     txtCapacidade.getText(), txtAutonomia.getText(), txtAno.getText()
             );
 
-            // Delega a ação de atualizar para o Service
             aviaoService.atualizar(aviaoDTO);
 
             carregarTabelaAvioes();
@@ -152,7 +155,10 @@ public class MainController {
 
     @FXML
     private void btnExcluirAction(ActionEvent evento) {
-        if (!AviaoValidador.isIdValido(txtId.getText())) return;
+        if (txtId.getText() == null || txtId.getText().trim().isEmpty()) {
+            DialogUtil.showWarning("Selecione um avião na tabela para poder excluir.");
+            return;
+        }
 
         boolean confirmado = DialogUtil.showConfirmation("Atenção: Tem certeza que deseja excluir esta aeronave? Esta ação não pode ser desfeita.");
         if (!confirmado) return;
@@ -160,7 +166,6 @@ public class MainController {
         try {
             int idAviao = Integer.parseInt(txtId.getText().trim());
 
-            // Delega a ação de exclusão para o Service
             aviaoService.excluir(idAviao);
 
             carregarTabelaAvioes();

@@ -12,22 +12,27 @@ import com.template.model.dto.AviaoDTO;
 
 import java.util.ArrayList;
 
-public class AviaoService {
+public class AviaoService implements IAviaoService {
 
     private final AviaoDAO aviaoDAO = new AviaoDAO();
+
     // throws é a batata quente
+    @Override
     public ArrayList<AviaoDTO> listarTodos() throws Exception {
         return aviaoDAO.listarTodos();
     }
 
+    @Override
     public void salvar(AviaoDTO aviao) throws Exception {
         aviaoDAO.cadastrarAviao(aviao);
     }
 
+    @Override
     public void atualizar(AviaoDTO aviao) throws Exception {
         aviaoDAO.atualizarAviao(aviao);
     }
 
+    @Override
     public void excluir(int id) throws Exception {
         aviaoDAO.excluirAviao(id);
     }
