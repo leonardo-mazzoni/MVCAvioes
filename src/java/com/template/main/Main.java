@@ -1,15 +1,38 @@
 package com.template.main;
 
+import com.template.factory.ControllerFactory;
+import com.template.services.AviaoService;
+import com.template.services.IAviaoService;
+import com.template.validator.AviaoValidador;
+import com.template.validator.IAviaoValidador;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 public class Main extends Application {
+
     @Override
     public void start(Stage stage) throws Exception {
-        // FXMLLoader loader = new FXMLLoader(Main.class.getResource("main.fxml"));
-        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/template/main.fxml"));
+        // 1. Instanciação das dependências concretas fora do Controller (Slides 31 e 32)
+        IAviaoService aviaoService = new AviaoService();
+        IAviaoValidador aviaoValidador = new AviaoValidador();
+
+        // 2. Criação da Fábrica de Controladores com as dependências
+        ControllerFactory controllerFactory = new ControllerFactory(aviaoService, aviaoValidador);
+
+        // 3. Configuração do FXMLLoader utilizando a Fábrica
+        FXMLLoader loader = new FXMLLoader();
+        URL fxmlLocation = getClass().getResource("/com/template/main.fxml");
+        if (fxmlLocation == null) {
+            System.err.println("Erro: main.fxml não encontrado. Verifique o caminho.");
+            return;
+        }
+        loader.setLocation(fxmlLocation);
+        loader.setControllerFactory(controllerFactory);
+
         Scene scene = new Scene(loader.load(), 850, 700);
 
         stage.setTitle("Gestão de Frota - Aviação");
@@ -17,7 +40,8 @@ public class Main extends Application {
         stage.setResizable(false);
         stage.show();
     }
+
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

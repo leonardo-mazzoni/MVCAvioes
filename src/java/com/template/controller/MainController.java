@@ -1,22 +1,30 @@
 package com.template.controller;
 
 import com.template.model.dto.AviaoDTO;
-import com.template.services.AviaoService;
 import com.template.services.IAviaoService;
 import com.template.services.LayoutServices;
 import com.template.util.AviaoMapper;
 import com.template.util.DialogUtil;
 import com.template.util.TabelaUtil;
-import com.template.validator.AviaoValidador;
 import com.template.validator.IAviaoValidador;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
 
+/**
+ * Controller principal do padrão MVC (Enxuto).
+ * Responsabilidade: Orquestrar eventos de UI e delegar regras de negócio,
+ * validação, mapeamento de dados e operações visuais para classes especializadas (SRP).
+ * Depende exclusivamente de abstrações (DIP).
+ */
 public class MainController {
 
     @FXML private Button btnSalvar;
@@ -41,16 +49,14 @@ public class MainController {
     @FXML private TableColumn<AviaoDTO, Integer> colAutonomia;
     @FXML private TableColumn<AviaoDTO, Integer> colAno;
 
+    // Dependências injetadas exclusivamente como interfaces (DIP)
     private final IAviaoService aviaoService;
     private final IAviaoValidador aviaoValidador;
 
+    // Injeção de dependência via construtor (Slide 30)
     public MainController(IAviaoService aviaoService, IAviaoValidador aviaoValidador) {
         this.aviaoService = aviaoService;
         this.aviaoValidador = aviaoValidador;
-    }
-
-    public MainController() {
-        this(new AviaoService(), new AviaoValidador());
     }
 
     @FXML
@@ -58,24 +64,17 @@ public class MainController {
         TabelaUtil.configurarColunasAviao(colId, colModelo, colFabricante, colCapacidade, colAutonomia, colAno);
         LayoutServices.aplicarFiltrosEntradaNumerica(txtCapacidade, txtAutonomia, txtAno);
         LayoutServices.configurarEstadoBotoes(btnSalvar, btnAlterar, btnExcluir, false);
-
         carregarTabelaAvioes();
     }
 
     private boolean validarEntradas() {
-        boolean isValido = aviaoValidador.validarAviao(
+        return aviaoValidador.validarAviao(
                 txtModelo.getText(),
                 txtFabricante.getText(),
                 txtCapacidade.getText(),
                 txtAutonomia.getText(),
                 txtAno.getText()
         );
-
-        if (!isValido) {
-            LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro: Preencha todos os campos corretamente.", false);
-        }
-
-        return isValido;
     }
 
     private void carregarTabelaAvioes() {
@@ -84,14 +83,13 @@ public class MainController {
             tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
         } catch (Exception e) {
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro ao carregar dados do banco.", false);
-            DialogUtil.showError("Falha crítica ao tentar conectar com o banco de dados para carregar a tabela.");
+            DialogUtil.showError("Falha crítica ao tentar conectar com o banco de dados.");
         }
     }
 
     @FXML
     private void carregarCampos(MouseEvent evento) {
         AviaoDTO aviaoSelecionadoDTO = tblAvioes.getSelectionModel().getSelectedItem();
-
         LayoutServices.preencherCampos(
                 aviaoSelecionadoDTO,
                 txtId, txtModelo, txtFabricante, txtCapacidade, txtAutonomia, txtAno,
@@ -113,6 +111,7 @@ public class MainController {
 
     @FXML
     private void btnSalvarAction(ActionEvent evento) {
+        // Delega toda a validação para o validador (Slide 11)
         if (!validarEntradas()) return;
 
         try {
@@ -122,13 +121,13 @@ public class MainController {
             );
 
             aviaoService.salvar(aviaoDTO);
-
             carregarTabelaAvioes();
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Avião cadastrado com sucesso!", true);
+            DialogUtil.showInformation("Avião cadastrado com sucesso!");
         } catch (Exception e) {
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro ao salvar no banco de dados.", false);
-            DialogUtil.showError("Ocorreu um erro inesperado ao tentar salvar a aeronave no banco de dados.");
+            DialogUtil.showError("Ocorreu um erro inesperado ao salvar a aeronave.");
         }
     }
 
@@ -143,13 +142,13 @@ public class MainController {
             );
 
             aviaoService.atualizar(aviaoDTO);
-
             carregarTabelaAvioes();
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Dados atualizados com sucesso!", true);
+            DialogUtil.showInformation("Dados atualizados com sucesso!");
         } catch (Exception e) {
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro ao atualizar aeronave.", false);
-            DialogUtil.showError("Ocorreu um erro inesperado ao tentar atualizar os dados da aeronave.");
+            DialogUtil.showError("Ocorreu um erro inesperado ao atualizar os dados.");
         }
     }
 
@@ -160,20 +159,20 @@ public class MainController {
             return;
         }
 
-        boolean confirmado = DialogUtil.showConfirmation("Atenção: Tem certeza que deseja excluir esta aeronave? Esta ação não pode ser desfeita.");
-        if (!confirmado) return;
+        if (!DialogUtil.showConfirmation("Atenção: Deseja realmente excluir esta aeronave?")) {
+            return;
+        }
 
         try {
             int idAviao = Integer.parseInt(txtId.getText().trim());
-
             aviaoService.excluir(idAviao);
-
             carregarTabelaAvioes();
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Aeronave excluída com sucesso!", true);
+            DialogUtil.showInformation("Aeronave excluída com sucesso!");
         } catch (Exception e) {
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro ao excluir aeronave.", false);
-            DialogUtil.showError("Falha crítica ao tentar excluir a aeronave do banco de dados.");
+            DialogUtil.showError("Falha crítica ao tentar excluir a aeronave.");
         }
     }
 }
