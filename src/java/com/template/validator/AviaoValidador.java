@@ -19,6 +19,7 @@ public class AviaoValidador implements IAviaoValidador {
         validadores.add(new CamposObrigatoriosValidador("Ano de Fabricação", ano));
 
         // Regras de negocio especificas
+        validadores.add(new ApenasTextoValidador(fabricante, "Fabricante"));
         validadores.add(new NumeroPositivoValidador(capacidade, "Capacidade"));
         validadores.add(new NumeroPositivoValidador(autonomia, "Autonomia"));
         validadores.add(new AnoValidador(ano));
@@ -44,6 +45,7 @@ public class AviaoValidador implements IAviaoValidador {
     public boolean validarFabricante(String fabricante) {
         List<Validador<String>> validadores = new ArrayList<>();
         validadores.add(new CamposObrigatoriosValidador("Fabricante", fabricante));
+        validadores.add(new ApenasTextoValidador(fabricante, "Fabricante"));
         return executarValidacoes(validadores);
     }
 

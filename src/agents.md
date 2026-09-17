@@ -65,6 +65,7 @@ src/java/com/template/
 └── validator/
     ├── Validador.java
     ├── CamposObrigatoriosValidador.java
+    ├── ApenasTextoValidador.java
     ├── NumeroPositivoValidador.java
     ├── AnoValidador.java
     ├── IAviaoValidador.java
@@ -158,6 +159,17 @@ src/java/com/template/
   * `validar(String valorAtual)`: Retorna `true` se `valor != null && !valor.trim().isEmpty()`.
   * `getMensagemErro()`: Retorna `"O campo " + nomeCampo + " deve ser preenchido."` (com espaçamento correto).
   * `getValor()`: Retorna `valor`.
+
+#### Classe [ApenasTextoValidador.java](file:///c:/Users/ra2457055/Desktop/MVCAvioes/src/java/com/template/validator/ApenasTextoValidador.java)
+* **Papel:** Validação de formato textual exclusivo para o campo Fabricante (sem permitir dígitos numéricos).
+* **Implementa:** `Validador<String>`.
+* **Atributos:**
+  * `REGEX_APENAS_TEXTO = "^[a-zA-ZÀ-ÿ\\s]+$"`: Expressão regular que aceita apenas letras maiúsculas, minúsculas, caracteres acentuados e espaços em branco.
+  * `valor`, `nomeCampo`.
+* **Métodos:**
+  * `validar(String valorAtual)`: Testa se a string não é nula/vazia e bate com a expressão regular de texto puro.
+  * `getMensagemErro()`: Retorna `"O campo " + nomeCampo + " deve conter apenas letras (números não são permitidos)."`.
+  * `getValor()`: Retorna a string do valor.
 
 #### Classe [NumeroPositivoValidador.java](file:///c:/Users/ra2457055/Desktop/MVCAvioes/src/java/com/template/validator/NumeroPositivoValidador.java)
 * **Papel:** Validação de regra específica com Expressão Regular (Regex).
