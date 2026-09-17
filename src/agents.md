@@ -20,9 +20,7 @@ Após a refatoração baseada estritamente nos slides das aulas ("Boas Práticas
 - [x] A atualização funciona (`btnAlterarAction`).
 - [x] As validações funcionam em ambos os fluxos com bloqueio preventivo.
 - [x] Existe a interface `Validador<T>`.
-- [x] `Validador<T>` possui os três métodos obrigatórios (`validar`, `getMensagemErro`, `getValor`).
-- [x] Existe a classe obrigatória `CamposObrigatoriosValidador` (no plural, conforme edital).
-- [x] Existe `CampoObrigatorioValidador` (herdando para garantir retrocompatibilidade com o slide 17).
+- [x] Existe a classe obrigatória `CamposObrigatoriosValidador` (conforme requisitos da aula).
 - [x] Existem validadores de regras específicas (`NumeroPositivoValidador` e `AnoValidador`).
 - [x] Existe a classe `AviaoValidador` (`SeuAssuntoValidador`).
 - [x] `AviaoValidador` utiliza uma **lista genérica** de validadores (`List<Validador<String>>`).
@@ -67,7 +65,6 @@ src/java/com/template/
 └── validator/
     ├── Validador.java
     ├── CamposObrigatoriosValidador.java
-    ├── CampoObrigatorioValidador.java
     ├── NumeroPositivoValidador.java
     ├── AnoValidador.java
     ├── IAviaoValidador.java
@@ -119,27 +116,25 @@ src/java/com/template/
   * `private final IAviaoValidador aviaoValidador`: Referência abstrata para o serviço de validação (DIP).
 * **Construtor:**
   * `MainController(IAviaoService aviaoService, IAviaoValidador aviaoValidador)`: Construtor com **injeção de dependência**. Não existe construtor sem argumentos nem `new` de implementações concretas dentro da classe.
-* **Métodos:**
-  * `initialize()`: Método executado automaticamente pelo JavaFX após a injeção dos componentes FXML. Configura as colunas da tabela via `TabelaUtil`, aplica máscara para aceitar apenas dígitos numéricos nos campos apropriados via `LayoutServices`, define estado inicial dos botões e carrega os registros do banco.
-  * `validarEntradas()`: Método privado auxiliar que delega os valores dos campos de texto diretamente para `aviaoValidador.validarAviao(...)`. Retorna `true` se tudo for válido e `false` se houver erro (o próprio validador já exibe o alerta visual de falha conforme Slide 18).
-  * `carregarTabelaAvioes()`: Consulta a lista de aeronaves no serviço via `aviaoService.listarTodos()` e popula a `tblAvioes`. Captura falhas e exibe erro amigável via `DialogUtil.showError`.
-  * `carregarCampos(MouseEvent evento)`: Disparado ao clicar em uma linha da tabela. Obtém o item selecionado e delega para `LayoutServices.preencherCampos(...)`, ativando o modo de edição (habilita botões Alterar e Excluir).
-  * `btnLimparAction(ActionEvent evento)`: Limpa todas as caixas de texto, reseta o label de status, desseleciona a tabela e volta os botões para o estado inicial via `LayoutServices.limparFormulario(...)`.
-  * `btnSalvarAction(ActionEvent evento)`: 
-    1. Executa `if (!validarEntradas()) return;`.
+* **Métodos (Apenas anotações @FXML):**
+  * `@FXML initialize()`: Método executado automaticamente pelo JavaFX após a injeção dos componentes FXML. Configura as colunas da tabela via `TabelaUtil`, aplica máscara para aceitar apenas dígitos numéricos nos campos apropriados via `LayoutServices`, define estado inicial dos botões e carrega os registros do banco via `TabelaUtil.carregarTabelaAvioes(...)`.
+  * `@FXML carregarCampos(MouseEvent evento)`: Disparado ao clicar em uma linha da tabela. Obtém o item selecionado e delega para `LayoutServices.preencherCampos(...)`, ativando o modo de edição (habilita botões Alterar e Excluir).
+  * `@FXML btnLimparAction(ActionEvent evento)`: Limpa todas as caixas de texto, reseta o label de status, desseleciona a tabela e volta os botões para o estado inicial via `LayoutServices.limparFormulario(...)`.
+  * `@FXML btnSalvarAction(ActionEvent evento)`: 
+    1. Valida diretamente com o validador injetado: `if (!aviaoValidador.validarAviao(...)) return;`.
     2. Converte os dados da tela para DTO através de `AviaoMapper.montarDTO(...)`.
     3. Salva no banco via `aviaoService.salvar(aviaoDTO)`.
-    4. Recarrega a tabela, limpa o formulário e emite alerta de confirmação via `DialogUtil.showInformation` e `lblMensagem`.
-  * `btnAlterarAction(ActionEvent evento)`:
-    1. Valida os campos com `validarEntradas()`.
+    4. Recarrega a tabela via `TabelaUtil.carregarTabelaAvioes(...)`, limpa o formulário e emite alerta de confirmação via `DialogUtil.showInformation` e `lblMensagem`.
+  * `@FXML btnAlterarAction(ActionEvent evento)`:
+    1. Valida com `aviaoValidador.validarAviao(...)`.
     2. Converte os dados da tela incluindo o ID via `AviaoMapper.montarDTO(...)`.
     3. Atualiza os dados via `aviaoService.atualizar(aviaoDTO)`.
-    4. Recarrega a tabela, limpa a tela e emite confirmação de sucesso.
-  * `btnExcluirAction(ActionEvent evento)`:
+    4. Recarrega a tabela via `TabelaUtil.carregarTabelaAvioes(...)`, limpa a tela e emite confirmação de sucesso.
+  * `@FXML btnExcluirAction(ActionEvent evento)`:
     1. Verifica se um ID válido está presente.
     2. Exibe diálogo de confirmação ao usuário via `DialogUtil.showConfirmation(...)`.
     3. Executa a exclusão via `aviaoService.excluir(idAviao)`.
-    4. Atualiza a tabela e notifica o usuário.
+    4. Atualiza a tabela via `TabelaUtil.carregarTabelaAvioes(...)` e notifica o usuário.
 
 ---
 
@@ -163,11 +158,6 @@ src/java/com/template/
   * `validar(String valorAtual)`: Retorna `true` se `valor != null && !valor.trim().isEmpty()`.
   * `getMensagemErro()`: Retorna `"O campo " + nomeCampo + " deve ser preenchido."` (com espaçamento correto).
   * `getValor()`: Retorna `valor`.
-
-#### Classe [CampoObrigatorioValidador.java](file:///c:/Users/ra2457055/Desktop/MVCAvioes/src/java/com/template/validator/CampoObrigatorioValidador.java)
-* **Papel:** Classe de compatibilidade com o Slide 17 da professora.
-* **Herança:** `public class CampoObrigatorioValidador extends CamposObrigatoriosValidador`.
-* **Construtor:** `super(nomeCampo, valor)`. Garante que qualquer código ou teste que busque por `CampoObrigatorioValidador` ou `CamposObrigatoriosValidador` funcione com 100% de sucesso.
 
 #### Classe [NumeroPositivoValidador.java](file:///c:/Users/ra2457055/Desktop/MVCAvioes/src/java/com/template/validator/NumeroPositivoValidador.java)
 * **Papel:** Validação de regra específica com Expressão Regular (Regex).
@@ -288,9 +278,10 @@ src/java/com/template/
   * `showConfirmation(String mensagem)`: Diálogo modal com `AlertType.CONFIRMATION`, retornando `true` se o usuário clicar em "OK".
 
 #### Classe [TabelaUtil.java](file:///c:/Users/ra2457055/Desktop/MVCAvioes/src/java/com/template/util/TabelaUtil.java)
-* **Papel:** Utilitário de configuração visual para `TableView` do JavaFX.
+* **Papel:** Utilitário de configuração e manipulação visual para `TableView` do JavaFX.
 * **Métodos:**
   * `configurarColunasAviao(...)`: Associa as propriedades do `AviaoDTO` (`id`, `modelo`, `fabricante`, etc.) às respectivas colunas via `PropertyValueFactory`.
+  * `carregarTabelaAvioes(tblAvioes, aviaoService, lblMensagem)`: Busca a lista de aviões do serviço e popula a `TableView`, tratando exceções de conexão com feedback em tela e diálogo modal.
 
 ---
 

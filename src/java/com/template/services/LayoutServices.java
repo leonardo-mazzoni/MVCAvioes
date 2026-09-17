@@ -1,10 +1,3 @@
-/*
-EXPLICAÇÃO:
-Aqui foi criado uma classe para a parte visual do MainController
-Limpar Controle
-Aplicar FIltros
-etc
- */
 package com.template.services;
 
 import com.template.model.dto.AviaoDTO;
@@ -15,16 +8,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.paint.Color;
 
+// Servico visual: cuida do estado dos componentes de tela (botoes, campos e feedbacks)
 public class LayoutServices {
 
     /**
      * Aplica filtro nos TextFields informados para permitirem apenas dígitos de 0 a 9.
+     * (Comentado para permitir testar e demonstrar as validações de back-end com NumeroPositivoValidador e AnoValidador).
      */
     public static void aplicarFiltrosEntradaNumerica(TextField... campos) {
+        /*
         for (TextField campo : campos) {
             campo.setTextFormatter(new TextFormatter<>(mudanca ->
                     mudanca.getText().matches("[0-9]*") ? mudanca : null));
         }
+        */
     }
 
     /**

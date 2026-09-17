@@ -1,5 +1,6 @@
 package com.template.validator;
 
+// Valida se o texto nao esta nulo e nem vazio (com apenas espacos)
 public class CamposObrigatoriosValidador implements Validador<String> {
 
     private final String nomeCampo;
@@ -12,6 +13,7 @@ public class CamposObrigatoriosValidador implements Validador<String> {
 
     @Override
     public boolean validar(String valorAtual) {
+        // Retorna true se tiver pelo menos um caractere valido digitado
         return this.valor != null && !this.valor.trim().isEmpty();
     }
 

@@ -16,14 +16,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // 1. Instanciação das dependências concretas fora do Controller (Slides 31 e 32)
+        // 1. Instancia as dependencias concretas aqui fora (bootstrap da aplicacao)
         IAviaoService aviaoService = new AviaoService();
         IAviaoValidador aviaoValidador = new AviaoValidador();
 
-        // 2. Criação da Fábrica de Controladores com as dependências
+        // 2. Cria a fabrica de controllers com as dependencias
         ControllerFactory controllerFactory = new ControllerFactory(aviaoService, aviaoValidador);
 
-        // 3. Configuração do FXMLLoader utilizando a Fábrica
+        // 3. Diz ao FXMLLoader para usar a nossa fabrica ao carregar o FXML
         FXMLLoader loader = new FXMLLoader();
         URL fxmlLocation = getClass().getResource("/com/template/main.fxml");
         if (fxmlLocation == null) {

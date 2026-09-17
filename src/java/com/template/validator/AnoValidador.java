@@ -2,8 +2,10 @@ package com.template.validator;
 
 import java.util.regex.Pattern;
 
+// Valida se o ano de fabricacao e valido (formato de 4 digitos entre 1900 e 2099)
 public class AnoValidador implements Validador<String> {
 
+    // Regex: comeca com 19 ou 20 seguido de dois digitos (1900 ate 2099)
     private static final String REGEX_ANO = "^(19|20)\\d{2}$";
     private final Pattern pattern = Pattern.compile(REGEX_ANO);
     private final String ano;

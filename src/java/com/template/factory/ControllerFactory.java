@@ -5,17 +5,13 @@ import com.template.services.IAviaoService;
 import com.template.validator.IAviaoValidador;
 import javafx.util.Callback;
 
-/**
- * Fábrica de Controladores para o JavaFX.
- * Implementa Callback<Class<?>, Object> e fornece a injeção de dependências
- * necessária para os Controllers ao carregar arquivos FXML.
- * Baseado nos Slides 31 e 32 (Inversão de Dependência e Injeção com FXMLLoader).
- */
+// Fabrica de Controllers do JavaFX: injeta as dependencias ao carregar o FXML
 public class ControllerFactory implements Callback<Class<?>, Object> {
 
     private final IAviaoService aviaoService;
     private final IAviaoValidador aviaoValidador;
 
+    // Recebe as instancias concretas criadas no Main
     public ControllerFactory(IAviaoService aviaoService, IAviaoValidador aviaoValidador) {
         this.aviaoService = aviaoService;
         this.aviaoValidador = aviaoValidador;
@@ -24,7 +20,7 @@ public class ControllerFactory implements Callback<Class<?>, Object> {
     @Override
     public Object call(Class<?> classeController) {
         if (classeController == MainController.class) {
-            // Injeção de dependência via construtor com abstrações (interfaces)
+            // Injeta as interfaces de servico e validacao no construtor do controller
             return new MainController(this.aviaoService, this.aviaoValidador);
         }
 

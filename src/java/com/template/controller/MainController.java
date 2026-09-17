@@ -7,7 +7,6 @@ import com.template.util.AviaoMapper;
 import com.template.util.DialogUtil;
 import com.template.util.TabelaUtil;
 import com.template.validator.IAviaoValidador;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,16 +16,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
-import java.util.ArrayList;
-
-/**
- * Controller principal do padrão MVC (Enxuto).
- * Responsabilidade: Orquestrar eventos de UI e delegar regras de negócio,
- * validação, mapeamento de dados e operações visuais para classes especializadas (SRP).
- * Depende exclusivamente de abstrações (DIP).
- */
+// Controller da tela: recebe os eventos da UI e repassa para as classes especializadas
 public class MainController {
 
+    // Componentes visuais injetados pelo FXML via fx:id
     @FXML private Button btnSalvar;
     @FXML private Button btnAlterar;
     @FXML private Button btnExcluir;
@@ -49,44 +42,26 @@ public class MainController {
     @FXML private TableColumn<AviaoDTO, Integer> colAutonomia;
     @FXML private TableColumn<AviaoDTO, Integer> colAno;
 
-    // Dependências injetadas exclusivamente como interfaces (DIP)
+    // Dependencias injetadas como interfaces pela Factory (sem new aqui dentro)
     private final IAviaoService aviaoService;
     private final IAviaoValidador aviaoValidador;
 
-    // Injeção de dependência via construtor (Slide 30)
+    // Construtor usado pela ControllerFactory para injeção
     public MainController(IAviaoService aviaoService, IAviaoValidador aviaoValidador) {
         this.aviaoService = aviaoService;
         this.aviaoValidador = aviaoValidador;
     }
 
+    // Inicializacao da tela: configura colunas, estado dos botoes e carrega os dados
     @FXML
     private void initialize() {
         TabelaUtil.configurarColunasAviao(colId, colModelo, colFabricante, colCapacidade, colAutonomia, colAno);
         LayoutServices.aplicarFiltrosEntradaNumerica(txtCapacidade, txtAutonomia, txtAno);
         LayoutServices.configurarEstadoBotoes(btnSalvar, btnAlterar, btnExcluir, false);
-        carregarTabelaAvioes();
+        TabelaUtil.carregarTabelaAvioes(tblAvioes, aviaoService, lblMensagem);
     }
 
-    private boolean validarEntradas() {
-        return aviaoValidador.validarAviao(
-                txtModelo.getText(),
-                txtFabricante.getText(),
-                txtCapacidade.getText(),
-                txtAutonomia.getText(),
-                txtAno.getText()
-        );
-    }
-
-    private void carregarTabelaAvioes() {
-        try {
-            ArrayList<AviaoDTO> listaAvioes = aviaoService.listarTodos();
-            tblAvioes.setItems(FXCollections.observableArrayList(listaAvioes));
-        } catch (Exception e) {
-            LayoutServices.exibirMensagemFeedback(lblMensagem, "Erro ao carregar dados do banco.", false);
-            DialogUtil.showError("Falha crítica ao tentar conectar com o banco de dados.");
-        }
-    }
-
+    // Clique na tabela: preenche os campos com o aviao selecionado e entra em modo edicao
     @FXML
     private void carregarCampos(MouseEvent evento) {
         AviaoDTO aviaoSelecionadoDTO = tblAvioes.getSelectionModel().getSelectedItem();
@@ -98,6 +73,7 @@ public class MainController {
         );
     }
 
+    // Botao Limpar: limpa os campos, desseleciona a tabela e reseta os botoes
     @FXML
     private void btnLimparAction(ActionEvent evento) {
         LayoutServices.limparFormulario(
@@ -109,10 +85,18 @@ public class MainController {
         );
     }
 
+    // Botao Salvar: valida entradas, converte para DTO e grava novo registro
     @FXML
     private void btnSalvarAction(ActionEvent evento) {
-        // Delega toda a validação para o validador (Slide 11)
-        if (!validarEntradas()) return;
+        if (!aviaoValidador.validarAviao(
+                txtModelo.getText(),
+                txtFabricante.getText(),
+                txtCapacidade.getText(),
+                txtAutonomia.getText(),
+                txtAno.getText()
+        )) {
+            return;
+        }
 
         try {
             AviaoDTO aviaoDTO = AviaoMapper.montarDTO(
@@ -121,7 +105,7 @@ public class MainController {
             );
 
             aviaoService.salvar(aviaoDTO);
-            carregarTabelaAvioes();
+            TabelaUtil.carregarTabelaAvioes(tblAvioes, aviaoService, lblMensagem);
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Avião cadastrado com sucesso!", true);
             DialogUtil.showInformation("Avião cadastrado com sucesso!");
@@ -131,9 +115,18 @@ public class MainController {
         }
     }
 
+    // Botao Alterar: valida entradas, monta o DTO com o ID e atualiza no banco
     @FXML
     private void btnAlterarAction(ActionEvent evento) {
-        if (!validarEntradas()) return;
+        if (!aviaoValidador.validarAviao(
+                txtModelo.getText(),
+                txtFabricante.getText(),
+                txtCapacidade.getText(),
+                txtAutonomia.getText(),
+                txtAno.getText()
+        )) {
+            return;
+        }
 
         try {
             AviaoDTO aviaoDTO = AviaoMapper.montarDTO(
@@ -142,7 +135,7 @@ public class MainController {
             );
 
             aviaoService.atualizar(aviaoDTO);
-            carregarTabelaAvioes();
+            TabelaUtil.carregarTabelaAvioes(tblAvioes, aviaoService, lblMensagem);
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Dados atualizados com sucesso!", true);
             DialogUtil.showInformation("Dados atualizados com sucesso!");
@@ -152,6 +145,7 @@ public class MainController {
         }
     }
 
+    // Botao Excluir: confirma com o usuario e remove pelo ID
     @FXML
     private void btnExcluirAction(ActionEvent evento) {
         if (txtId.getText() == null || txtId.getText().trim().isEmpty()) {
@@ -166,7 +160,7 @@ public class MainController {
         try {
             int idAviao = Integer.parseInt(txtId.getText().trim());
             aviaoService.excluir(idAviao);
-            carregarTabelaAvioes();
+            TabelaUtil.carregarTabelaAvioes(tblAvioes, aviaoService, lblMensagem);
             btnLimparAction(null);
             LayoutServices.exibirMensagemFeedback(lblMensagem, "Aeronave excluída com sucesso!", true);
             DialogUtil.showInformation("Aeronave excluída com sucesso!");
